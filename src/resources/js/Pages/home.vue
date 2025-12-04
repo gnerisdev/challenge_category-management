@@ -1,16 +1,26 @@
-<template>
-    <div class="flex items-center justify-center w-full transition-opacity opacity-100 duration-750 lg:grow starting:opacity-0 min-h-screen p-6 lg:p-8">
-        <div class="w-full lg:max-w-4xl max-w-[335px] mt-6 p-6 bg-white dark:bg-[#161615] rounded-lg shadow-lg">
-            <h2 class="text-lg font-medium mb-4 dark:text-[#EDEDEC]">
-              {{ message }}
-            </h2>
-        </div>
-    </div>
-</template>
-
 <script setup>
-import { ref } from 'vue';
-
-const message = ref('Hello World!');
+import AppLayout from '@/Layouts/AppLayout.vue';
 </script>
 
+<template>
+    <AppLayout>
+        <div class="p-4 md:p-8">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <h1 class="text-3xl font-bold text-gray-900">
+                        Dashboard
+                    </h1>
+                    <a
+                        href="/categories"
+                        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-md flex items-center gap-2"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                        </svg>
+                        Categorias
+                    </a>
+                </div>
+            </div>
+        </div>
+    </AppLayout>
+</template>
