@@ -33,6 +33,8 @@ class CategoriesApiController extends Controller
                 'data' => $categories
             ], 200);
         } catch (\Exception $e) {
+            \Log::error('Erro ao buscar categorias: ' . $e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Erro ao buscar categorias',
@@ -153,8 +155,89 @@ class CategoriesApiController extends Controller
         }
     }
 
+    public function trashed(): JsonResponse
+    {
+        try {
+            $categories = Category::onlyTrashed()
+                ->with(['children' => function ($query) {
+                    $query->onlyTrashed();
+                }])
+                ->whereNull('parent_id')
+                ->orderBy('deleted_at', 'desc')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $categories
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao buscar categorias excluídas',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function restore($id): JsonResponse
+    {
+        try {
+            $category = Category::onlyTrashed()->find($id);
+
+            if (!$category) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Categoria não encontrada na lixeira'
+                ], 404);
+            }
+
+            $category->restore();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Categoria restaurada com sucesso'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao restaurar categoria',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function deletePermanent($id): JsonResponse
+    {
+        try {
+            $category = Category::onlyTrashed()->find($id);
+
+            if (!$category) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Categoria não encontrada na lixeira'
+                ], 404);
+            }
+
+            $category->forceDelete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Categoria excluída permanentemente'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao excluir categoria permanentemente',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function reorder(Request $request): JsonResponse
     {
+        \Log::info('Passou aq****');
+        \Log::info($request->all()); 
+
         try {
             $validator = Validator::make($request->all(), [
                 'categories' => 'required|array',
@@ -175,7 +258,7 @@ class CategoriesApiController extends Controller
                     'success' => false,
                     'message' => 'Nenhuma categoria para reordenar'
                 ], 400);
-            }
+            }  
 
             $firstCategory = Category::find($request->categories[0]['id']);
             if (!$firstCategory) {
@@ -233,4 +316,3 @@ class CategoriesApiController extends Controller
         }
     }
 }
-
