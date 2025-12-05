@@ -35,21 +35,19 @@ const form = reactive({ name: '', description: '' });
 
 const formFields = computed(() => {
     return fields.value.map(field => {
-        return {
-            ...field,
-            value: form[field.name] || ''
-        };
+        return { ...field, value: form[field.name] || '' };
     });
 });
 
 const getCategories = async () => {
     try {
         const response = await api.get('/categories');
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message);
-        categories.value = data.data || [];
+        if (response.data.success) {
+            categories.value = response.data.data || [];
+        }
     } catch (error) {
-        alert(error.message || 'Erro ao carregar categorias');
+        const message = error.response?.data?.message || 'Erro ao carregar categorias';
+        alert(message);
     }
 };
 
@@ -58,25 +56,26 @@ const createCategory = async (body) => {
         const dataToSend = { ...body };
         if (parentId.value) dataToSend.parent_id = parentId.value;
         const response = await api.post('/categories', dataToSend);
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message);
-        closeModal();
-        await getCategories();
+        if (response.data.success) {
+            closeModal();
+            await getCategories();
+        }
     } catch (error) {
-        console.log(error);
-        alert(error.message || 'Erro ao criar categoria');
+        const message = error.response?.data?.message || 'Erro ao criar categoria';
+        alert(message);
     }
 };
 
 const updateCategory = async (id, body) => {
     try {
         const response = await api.put(`/categories/${id}`, body);
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message);
-        closeModal();
-        await getCategories();
+        if (response.data.success) {
+            closeModal();
+            await getCategories();
+        }
     } catch (error) {
-        alert(error.message || 'Erro ao atualizar categoria');
+        const message = error.response?.data?.message || 'Erro ao atualizar categoria';
+        alert(message);
     }
 };
 
@@ -85,11 +84,12 @@ const deleteCategory = async (id) => {
 
     try {
         const response = await api.delete(`/categories/${id}`);
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message);
-        await getCategories();
+        if (response.data.success) {
+            await getCategories();
+        }
     } catch (error) {
-        alert(error.message || 'Erro ao deletar categoria');
+        const message = error.response?.data?.message || 'Erro ao deletar categoria';
+        alert(message);
     }
 };
 
@@ -105,16 +105,16 @@ const openModal = () => {
 const openEditModal = async (category) => {
     try {
         const response = await api.get(`/categories/${category.id}`);
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message);
-    
-        isEditing.value = true;
-        editingId.value = category.id;
-        form.name = data.data.name || '';
-        form.description = data.data.description || '';
-        showModal.value = true;
+        if (response.data.success) {
+            isEditing.value = true;
+            editingId.value = category.id;
+            form.name = response.data.data.name || '';
+            form.description = response.data.data.description || '';
+            showModal.value = true;
+        }
     } catch (error) {
-        alert(error.message || 'Erro ao carregar categoria');
+        const message = error.response?.data?.message || 'Erro ao carregar categoria';
+        alert(message);
     }
 };
 
@@ -176,17 +176,12 @@ const moveCategory = async (category, direction) => {
             sort_order: index
         }));
 
-        const response = await api.post('/categories/reorder', {
-            categories: categoriesToUpdate
-        });
+        const response = await api.put('/categories/order', { categories: categoriesToUpdate });
         
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message);
-        
-        await getCategories();
+        if (response.data.success) await getCategories();
     } catch (error) {
-        alert(error.message || 'Erro ao mover categoria');
-        await getCategories();
+        const message = error.response?.data?.message || 'Erro ao mover categoria';
+        alert(message);
     }
 };
 

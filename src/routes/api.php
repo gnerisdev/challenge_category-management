@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CategoriesApiController;
 
+Route::get('/categories/statistics', [CategoriesApiController::class, 'statistics']);
 Route::get('/categories', [CategoriesApiController::class, 'show']);
 Route::get('/categories/{id}', [CategoriesApiController::class, 'show']);
 Route::post('/categories', [CategoriesApiController::class, 'store']);

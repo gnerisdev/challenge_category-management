@@ -1,55 +1,41 @@
-class ApiRequest {
-    constructor() {  
-        this.API_BASE_URL = '/api';
-    }
-    
-    getHeaders() {
-        let token = document.querySelector('meta[name="csrf-token"]');
-        token = token ? token.getAttribute('content') : '';
+import axios from 'axios';
 
-        return {
+const axiosInstance = () => {
+    const instance = axios.create({
+        baseURL: '/api',
+        headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'X-CSRF-TOKEN': token,
-        };
+        }
+    });
+
+    instance.interceptors.request.use((config) => {
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        const token = meta ? meta.getAttribute('content') : '';
+        if (token) config.headers['X-CSRF-TOKEN'] = token;
+        return config;
+    });
+
+    return instance;
+};
+
+const api = axiosInstance();
+
+class ApiRequest {
+    async get(url) {
+        return api.get(url);
     }
 
-    async get(url) {
-        const res = await fetch(`${this.API_BASE_URL}${url}`, {
-            method: 'GET',
-            headers: this.getHeaders(),
-        });
-
-        return res;
-    }   
-
     async post(url, data) {
-        const res = await fetch(`${this.API_BASE_URL}${url}`, {
-            method: 'POST',
-            headers: this.getHeaders(),
-            body: JSON.stringify(data),
-        });
-
-        return res;
+        return api.post(url, data);
     }
 
     async put(url, data) {
-        const res = await fetch(`${this.API_BASE_URL}${url}`, {
-            method: 'PUT',
-            headers: this.getHeaders(),
-            body: JSON.stringify(data),
-        });
-
-        return res;
+        return api.put(url, data);
     }
 
     async delete(url) {
-        const res = await fetch(`${this.API_BASE_URL}${url}`, {
-            method: 'DELETE',
-            headers: this.getHeaders(),
-        });
-
-        return res;
+        return api.delete(url);
     }
 }
 
