@@ -206,5 +206,31 @@ class CategoriesApiController extends Controller
             ], 500);
         }
     }
+
+    public function statistics(): JsonResponse
+    {
+        try {
+            $total = Category::count();
+            $mainCategories = Category::whereNull('parent_id')->count();
+            $subcategories = Category::whereNotNull('parent_id')->count();
+            $active = Category::where('is_active', true)->count();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'total' => $total,
+                    'main_categories' => $mainCategories,
+                    'subcategories' => $subcategories,
+                    'active' => $active
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao buscar estatísticas',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
 
