@@ -23,7 +23,7 @@ services:
     image: nginx:1.25
     container_name: app_nginx
     ports:
-      - "9000:80"
+      - "8080:80"
     volumes:
       - ./src:/var/www/html:ro
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
@@ -41,15 +41,17 @@ services:
     ports:
       - "3307:3306"
 
-  node:
-    image: node:20
+  app_node:
+    build:
+      context: ./src
+      dockerfile: ../docker/node/Dockerfile
     container_name: app_node
     working_dir: /var/www/html
-    volumes:
-      - ./src:/var/www/html
     ports:
       - "5173:5173"
-    command: ["npm", "run", "dev"]
+    volumes:
+      - ./src:/var/www/html
+      - /var/www/html/node_modules
     depends_on:
       - app
 
