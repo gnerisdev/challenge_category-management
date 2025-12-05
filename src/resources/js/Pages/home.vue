@@ -16,10 +16,11 @@ const loading = ref(true);
 const getStatistics = async () => {
     try {
         loading.value = true;
-        const response = await api.get('/categories/statistics');        
-        const data = await response.json();
+        const response = await api.get('/categories/statistics');
         
-        if (data.success) statistics.value = data.data;
+        if (response && response.data && response.data.success) {
+            statistics.value = response.data.data;
+        }
     } catch (error) {
         console.error('Erro ao buscar estatísticas:', error);
     } finally {
