@@ -26,8 +26,9 @@ const hasParent = computed(() => {
 const onEdit = () => emit('edit', props.category);
 const onDelete = () => emit('delete', props.category.id);
 const onCreateSubcategory = () => emit('add-subcategory', props.category);
-const handleMoveUp = (category = null) => emit('move-up', category || props.category);
-const handleMoveDown = (category = null) => emit('move-down', category || props.category);
+
+const moveUp = (category = null) => emit('move-up', category || props.category);
+const moveDown = (category = null) => emit('move-down', category || props.category);
 </script>
 
 <template>
@@ -40,32 +41,7 @@ const handleMoveDown = (category = null) => emit('move-down', category || props.
             <div class="flex items-center gap-2">
                 <div class="flex gap-1">
                     <button
-                        v-if="hasParent"
-                        @click="handleMoveUp"
-                        :disabled="props.index === 0"
-                        class="p-1 text-gray-400 transition-colors hover:text-gray-600"
-                        :class="{ 'opacity-30 cursor-not-allowed': props.index === 0 }"
-                        title="Mover para cima"
-                    >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                        </svg>
-                    </button>
-                    <button
-                        v-if="hasParent"
-                        @click="handleMoveDown"
-                        :disabled="props.index === props.total - 1"
-                        class="p-1 text-gray-400 transition-colors hover:text-gray-600"
-                        :class="{ 'opacity-30 cursor-not-allowed': props.index === props.total - 1 }"
-                        title="Mover para baixo"
-                    >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                    <button
-                        v-if="!hasParent"
-                        @click="handleMoveUp"
+                        @click="() => moveUp(props.category)"
                         :disabled="props.index === 0"
                         class="p-1 text-gray-400 transition-colors hover:text-gray-600"
                         :class="{ 'opacity-30 cursor-not-allowed': props.index === 0 }"
@@ -76,8 +52,7 @@ const handleMoveDown = (category = null) => emit('move-down', category || props.
                         </svg>
                     </button>
                     <button
-                        v-if="!hasParent"
-                        @click="handleMoveDown"
+                        @click="() => moveDown(props.category)"
                         :disabled="props.index === props.total - 1"
                         class="p-1 text-gray-400 transition-colors hover:text-gray-600"
                         :class="{ 'opacity-30 cursor-not-allowed': props.index === props.total - 1 }"
@@ -88,6 +63,7 @@ const handleMoveDown = (category = null) => emit('move-down', category || props.
                         </svg>
                     </button>
                 </div>
+
                 <button
                     @click="onEdit"
                     class="p-2 text-gray-400 hover:text-blue-600 transition-colors"
@@ -126,7 +102,7 @@ const handleMoveDown = (category = null) => emit('move-down', category || props.
                     </div>
                     <div class="flex items-center gap-1">
                         <button
-                            @click="handleMoveUp(child)"
+                            @click="moveUp(child)"
                             :disabled="childIndex === 0"
                             class="p-1 text-gray-400 transition-colors hover:text-gray-600"
                             :class="{ 'opacity-30 cursor-not-allowed': childIndex === 0 }"
@@ -137,7 +113,7 @@ const handleMoveDown = (category = null) => emit('move-down', category || props.
                             </svg>
                         </button>
                         <button
-                            @click="handleMoveDown(child)"
+                            @click="moveDown(child)"
                             :disabled="childIndex === props.category.children.length - 1"
                             class="p-1 text-gray-400 transition-colors hover:text-gray-600"
                             :class="{ 'opacity-30 cursor-not-allowed': childIndex === props.category.children.length - 1 }"
