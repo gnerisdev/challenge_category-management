@@ -235,6 +235,9 @@ class CategoriesApiController extends Controller
 
     public function reorder(Request $request): JsonResponse
     {
+        \Log::info('Passou aq****');
+        \Log::info($request->all()); 
+
         try {
             $validator = Validator::make($request->all(), [
                 'categories' => 'required|array',
@@ -255,7 +258,7 @@ class CategoriesApiController extends Controller
                     'success' => false,
                     'message' => 'Nenhuma categoria para reordenar'
                 ], 400);
-            }
+            }  
 
             $firstCategory = Category::find($request->categories[0]['id']);
             if (!$firstCategory) {
