@@ -144,42 +144,103 @@ const openSubcategoryModal = (parentCategory) => {
     showModal.value = true;
 };
 
-const findCategoryGroup = (categories, categoryId) => {
+const findCategoryById = (categories, categoryId) => {
+    if (!categories || !Array.isArray(categories)) {
+        return null;
+    }
+    
+    const normalizedId = Number(categoryId);
+    
     for (const cat of categories) {
-        if (cat.id === categoryId) return categories;
-        
-        if (cat.children && cat.children.length > 0) {
-            const found = findCategoryGroup(cat.children, categoryId);
+        if (Number(cat.id) === normalizedId) {
+            return cat;
+        }
+        if (cat.children && Array.isArray(cat.children) && cat.children.length > 0) {
+            const found = findCategoryById(cat.children, categoryId);
             if (found) return found;
         }
     }
     return null;
 };
 
-const moveCategory = async (category, direction) => {
-    try {
-        const categoryGroup = findCategoryGroup(categories.value, category.id);
-        if (!categoryGroup) return;
+const findCategoryGroup = (categories, categoryId) => {
+    if (!categories || !Array.isArray(categories)) {
+        return null;
+    }
+    
+    const normalizedId = Number(categoryId);
+    
+    for (const cat of categories) {
+        if (Number(cat.id) === normalizedId) {
+            return categories;
+        }
+        
+        if (cat.children && Array.isArray(cat.children) && cat.children.length > 0) {
+            const childMatch = cat.children.find(child => Number(child.id) === normalizedId);
+            if (childMatch) {
+                return cat.children;
+            }
+            
+            const found = findCategoryGroup(cat.children, categoryId);
+            if (found) return found;
+        }
+    }
+    
+    return null;
+};
 
-        const currentIndex = categoryGroup.findIndex(cat => cat.id === category.id);
-        if (currentIndex === -1) return;
+const moveCategory = async (direction, category) => {
+    console.log(category, '-----', direction)
+    try {
+        if (!category || (!category.id && category.id !== 0)) {
+            alert('Erro: Categoria inválida');
+            return;
+        }
+
+        const categoryId = category.id;
+        const categoryGroup = findCategoryGroup(categories.value, categoryId);
+        if (!categoryGroup) {
+            alert(`Erro: Grupo de categorias não encontrado`);
+            return;
+        }
+
+        const currentIndex = categoryGroup.findIndex(cat => Number(cat.id) === Number(categoryId));
+        if (currentIndex === -1) {
+            alert('Erro: Categoria não encontrada no grupo');
+            return;
+        }
 
         let newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-        if (newIndex < 0 || newIndex >= categoryGroup.length) return;
+        if (newIndex < 0 || newIndex >= categoryGroup.length) {
+            return;
+        }
 
-        const temp = categoryGroup[currentIndex];
-        categoryGroup[currentIndex] = categoryGroup[newIndex];
-        categoryGroup[newIndex] = temp;
+        const parentId = categoryGroup[0]?.parent_id ?? null;
+        const allSameParent = categoryGroup.every(cat => (cat.parent_id ?? null) === parentId);
+        if (!allSameParent) {
+            alert('Erro: Categorias no grupo têm parent_id diferentes');
+            return;
+        }
 
-        const categoriesToUpdate = categoryGroup.map((cat, index) => ({
+        const newGroup = [...categoryGroup];
+        const temp = newGroup[currentIndex];
+        newGroup[currentIndex] = newGroup[newIndex];
+        newGroup[newIndex] = temp;
+
+        const categoriesToUpdate = newGroup.map((cat, index) => ({
             id: cat.id,
             sort_order: index
         }));
 
-        const response = await api.put('/categories/order', { categories: categoriesToUpdate });
+        const response = await api.put('/categories/reorder', { categories: categoriesToUpdate });
         
-        if (response.data.success) await getCategories();
+        if (response.data.success) {
+            await getCategories();
+        } else {
+            alert(response.data.message || 'Erro ao mover categoria');
+        }
     } catch (error) {
+        console.log(error)
         const message = error.response?.data?.message || 'Erro ao mover categoria';
         alert(message);
     }
@@ -217,8 +278,8 @@ onMounted(() => {
                     @edit="openEditModal"
                     @delete="deleteCategory"
                     @add-subcategory="openSubcategoryModal"
-                    @move-up="moveCategory($event, 'up')"
-                    @move-down="moveCategory($event, 'down')"
+                    @move-up="category => moveCategory('up', category)"
+                    @move-down="category => moveCategory('down', category)"
                 />
             </div>
         </section>
