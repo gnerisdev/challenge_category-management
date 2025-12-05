@@ -10,3 +10,6 @@ Route::post('/categories', [CategoriesApiController::class, 'store']);
 Route::put('/categories/{id}', [CategoriesApiController::class, 'update']);
 Route::delete('/categories/{id}', [CategoriesApiController::class, 'destroy']);
 Route::put('/categories/order', [CategoriesApiController::class, 'reorder']);
+Route::get('/categories/trashed/list', [CategoriesApiController::class, 'trashed']);
+Route::post('/categories/trashed/{id}/restore', [CategoriesApiController::class, 'restore']);
+Route::delete('/categories/trashed/{id}/permanent', [CategoriesApiController::class, 'deletePermanent']);

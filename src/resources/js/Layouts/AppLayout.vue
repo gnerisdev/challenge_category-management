@@ -29,6 +29,13 @@ const page = usePage();
                         >
                             Categorias
                         </a>
+                        <a
+                            href="/trash"
+                            class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 transition-colors"
+                            :class="{ 'bg-gray-100': $page.url.startsWith('/trash') }"
+                        >
+                            Lixeira
+                        </a>
                     </div>
                 </div>
             </div>
