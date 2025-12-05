@@ -313,4 +313,3 @@ class CategoriesApiController extends Controller
         }
     }
 }
-
