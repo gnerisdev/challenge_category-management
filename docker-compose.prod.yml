@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: docker/php/Dockerfile
-    container_name: app_laravel_prod
+    container_name: app_laravel
     working_dir: /var/www/html
     volumes:
       - ./src:/var/www/html
@@ -21,7 +21,7 @@ services:
 
   nginx:
     image: nginx:1.25
-    container_name: app_nginx_prod
+    container_name: app_nginx
     ports:
       - "80:80"
     volumes:
@@ -32,12 +32,12 @@ services:
 
   db:
     image: mysql:8.0
-    container_name: app_mysql_prod
+    container_name: app_mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
       MYSQL_DATABASE: challenge_db
     volumes:
-      - db_data_prod:/var/lib/mysql
+      - db_data:/var/lib/mysql
     ports:
       - "3306:3306"
 
@@ -45,12 +45,12 @@ services:
     build:
       context: ./src
       dockerfile: ../docker/node/Dockerfile.prod
-    container_name: app_node_build_prod
+    container_name: app_node_build
     working_dir: /var/www/html
     volumes:
       - ./src:/var/www/html
       - /var/www/html/node_modules
-    command: sh -c "npm install && npm run build && echo 'Build completed successfully'"
+    command: sh -c "npm install && npm run build:prod && echo 'Build completed successfully'"
     profiles:
       - build
 

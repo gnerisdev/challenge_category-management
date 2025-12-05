@@ -2,8 +2,4 @@ FROM node:20
 
 WORKDIR /var/www/html
 
-# Instala as dependências
 RUN npm install -g npm@latest
-
-# Em produção, o build será executado via comando no docker-compose
-# para que os arquivos fiquem no volume compartilhado
