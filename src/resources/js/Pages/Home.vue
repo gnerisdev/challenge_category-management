@@ -38,7 +38,7 @@ onMounted(() => {
         <div class="p-4 md:p-8">
             <div class="max-w-6xl mx-auto">
                 <div class="flex items-center justify-between mb-6">
-                    <h1 class="text-3xl font-bold text-gray-900">
+                    <h1 class="text-2xl font-bold text-gray-900">
                         Dashboard
                     </h1>
                     <a

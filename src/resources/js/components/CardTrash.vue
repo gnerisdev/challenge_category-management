@@ -5,6 +5,10 @@ const props = defineProps({
     category: {
         type: Object,
         required: true
+    },
+    isSubcategory: {
+        type: Boolean,
+        default: false
     }
 });
 
@@ -15,11 +19,14 @@ const onDelete = () => emit('delete', props.category.id);
 </script>
 
 <template>
-    <div class="bg-white rounded-lg shadow-md p-4 border-l-4 border-red-500">
+    <div class="bg-white rounded-lg shadow-md p-4 border-l-4" :class="isSubcategory ? 'border-orange-500' : 'border-red-500'">
         <div class="flex items-start justify-between">
             <div class="flex-1">
                 <div class="flex items-center gap-2 mb-2">
                     <h3 class="font-medium text-lg text-gray-800">{{ category.name }}</h3>
+                    <span v-if="isSubcategory && category.parent" class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                        Categoria: {{ category.parent.name }}
+                    </span>
                 </div>
                 <p v-if="category.description" class="text-gray-600 text-sm mb-2">{{ category.description }}</p>
             </div>

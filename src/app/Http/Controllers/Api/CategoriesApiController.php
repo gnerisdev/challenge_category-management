@@ -158,7 +158,7 @@ class CategoriesApiController extends Controller
     public function trashed(): JsonResponse
     {
         try {
-            $categories = Category::onlyTrashed()
+            $mainCategories = Category::onlyTrashed()
                 ->with(['children' => function ($query) {
                     $query->onlyTrashed();
                 }])
@@ -166,9 +166,21 @@ class CategoriesApiController extends Controller
                 ->orderBy('deleted_at', 'desc')
                 ->get();
 
+            $subcategories = Category::onlyTrashed()
+                ->whereNotNull('parent_id')
+                ->whereHas('parent', function ($query) {
+                    $query->withoutTrashed();
+                })
+                ->with('parent:id,name')
+                ->orderBy('deleted_at', 'desc')
+                ->get();
+
             return response()->json([
                 'success' => true,
-                'data' => $categories
+                'data' => [
+                    'main_categories' => $mainCategories,
+                    'subcategories' => $subcategories
+                ]
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -189,6 +201,15 @@ class CategoriesApiController extends Controller
                     'success' => false,
                     'message' => 'Categoria não encontrada na lixeira'
                 ], 404);
+            }
+
+            if ($category->parent_id !== null) {
+                $parent = Category::onlyTrashed()->find($category->parent_id);
+                if ($parent) {
+                    Category::withoutEvents(function () use ($parent) {
+                        $parent->restore();
+                    });
+                }
             }
 
             $category->restore();

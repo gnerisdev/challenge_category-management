@@ -55,5 +55,4 @@ services:
       - build
 
 volumes:
-  db_data_prod:
-
+  db_data:
